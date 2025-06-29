@@ -24,6 +24,9 @@ builder.Services.AddCors(options =>
         policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 });
 
+// Add HttpClient for Python API forwarding
+builder.Services.AddHttpClient();
+
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 builder.Services.AddAuthentication(options =>
