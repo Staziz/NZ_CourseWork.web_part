@@ -10,6 +10,7 @@ namespace backend.Services
         {
             using var scope = app.Services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<WasteDbContext>();
+            var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
             db.Database.Migrate();
 
             // Seed users
@@ -21,17 +22,14 @@ namespace backend.Services
                 );
             }
 
-            // Seed categories
+            // Seed categories from config
             if (!db.Categories.Any())
             {
-                db.Categories.AddRange(
-                    new Category { Name = "Plastic" },
-                    new Category { Name = "Glass" },
-                    new Category { Name = "Metal" },
-                    new Category { Name = "Paper" },
-                    new Category { Name = "Battery" },
-                    new Category { Name = "Clothes" }
-                );
+                var categories = config.GetSection("WasteCategories").Get<string[]>();
+                if (categories != null)
+                {
+                    db.Categories.AddRange(categories.Select(name => new Category { Name = name }));
+                }
             }
 
             db.SaveChanges();
