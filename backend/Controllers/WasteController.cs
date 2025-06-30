@@ -41,28 +41,63 @@ namespace backend.Controllers
             }
 
             // Forward to Python API
-            var pythonApiUrl = _config["PythonApi:Url"] ?? "http://127.0.0.1:5000/predict";
+            var pythonApiUrl = _config["PythonApi:Url"] ?? "http://localhost:5691/predict";
             var client = _httpClientFactory.CreateClient();
             using var form = new MultipartFormDataContent();
             using var fs = System.IO.File.OpenRead(filePath);
             form.Add(new StreamContent(fs), "file", fileName);
             var response = await client.PostAsync(pythonApiUrl, form);
             string? result = null;
+            string? error = null;
+            string? wasteClass = null;
+            double? confidence = null;
+            double? maxProb = null;
             if (response.IsSuccessStatusCode)
             {
                 result = await response.Content.ReadAsStringAsync();
+                try
+                {
+                    var json = System.Text.Json.JsonDocument.Parse(result);
+                    var root = json.RootElement;
+                    if (root.TryGetProperty("error", out var errorProp))
+                    {
+                        error = errorProp.GetString();
+                        if (root.TryGetProperty("max_prob", out var maxProbProp))
+                        {
+                            maxProb = maxProbProp.GetDouble();
+                        }
+                    }
+                    else if (root.TryGetProperty("class", out var classProp) && root.TryGetProperty("confidence", out var confProp))
+                    {
+                        wasteClass = classProp.GetString();
+                        confidence = confProp.GetDouble();
+                    }
+                }
+                catch { }
             }
 
             var waste = new WasteItem
             {
                 ImagePath = fileName,
-                Status = result != null ? "classified" : "unclassified",
+                Status = (wasteClass != null) ? "classified" : "unclassified",
                 Result = result,
                 CreatedAt = DateTime.UtcNow
             };
             _db.WasteItems.Add(waste);
             await _db.SaveChangesAsync();
-            return Ok(new { waste.Id, waste.ImagePath, waste.Status, waste.Result });
+
+            if (error != null)
+            {
+                return Ok(new { error, max_prob = maxProb, waste.Id, waste.ImagePath, waste.Status });
+            }
+            else if (wasteClass != null)
+            {
+                return Ok(new { @class = wasteClass, confidence, waste.Id, waste.ImagePath, waste.Status });
+            }
+            else
+            {
+                return Ok(new { error = "Unknown error", waste.Id, waste.ImagePath, waste.Status });
+            }
         }
 
         [HttpGet("queue")]
