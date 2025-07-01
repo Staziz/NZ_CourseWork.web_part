@@ -81,7 +81,11 @@ namespace backend.Controllers
                 ImagePath = fileName,
                 Status = (wasteClass != null) ? "classified" : "unclassified",
                 Result = result,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                Category = wasteClass, // set category if classified
+                IsManual = false, // always auto for this endpoint
+                ClassifiedBy = "auto",
+                IsCorrect = (wasteClass != null) ? true : (bool?)null // assume correct for demo if classified
             };
             _db.WasteItems.Add(waste);
             await _db.SaveChangesAsync();
@@ -115,6 +119,9 @@ namespace backend.Controllers
             waste.Status = "classified";
             waste.Result = req.Result;
             waste.Category = req.Category;
+            waste.IsManual = true;
+            waste.ClassifiedBy = "manual";
+            waste.IsCorrect = true; // assume correct for demo
             await _db.SaveChangesAsync();
             return Ok(new { waste.Id, waste.Status, waste.Result, waste.Category });
         }
