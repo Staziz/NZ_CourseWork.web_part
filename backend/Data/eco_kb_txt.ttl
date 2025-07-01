@@ -1,0 +1,229 @@
+@prefix : <http://example.org/waste#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ========================
+# Classes
+# ========================
+
+:WasteMaterial rdf:type rdfs:Class ;
+               rdfs:label "Waste Material" .
+
+:Recyclable rdf:type rdfs:Class ;
+            rdfs:label "Recyclable Material" .
+
+:Hazardous rdf:type rdfs:Class ;
+           rdfs:label "Hazardous Waste" .
+
+:Conveyor rdf:type rdfs:Class ;
+          rdfs:label "Conveyor" .
+
+:SortingRule rdf:type rdfs:Class ;
+             rdfs:label "Sorting Rule" .
+
+:WasteItem rdf:type rdfs:Class ;
+           rdfs:label "Waste Item" .
+
+:SystemAlarm rdf:type rdfs:Class ;
+             rdfs:label "System Alarm" .
+
+:SystemWarning rdf:type rdfs:Class ;
+               rdfs:label "System Warning" .
+
+# Waste categories (subclasses)
+:Metal rdf:type rdfs:Class ;
+       rdfs:subClassOf :WasteMaterial ;
+       rdfs:label "Metal" .
+
+:Glass rdf:type rdfs:Class ;
+       rdfs:subClassOf :WasteMaterial ;
+       rdfs:label "Glass" .
+
+:Biological rdf:type rdfs:Class ;
+            rdfs:subClassOf :WasteMaterial ;
+            rdfs:label "Biological" .
+
+:Paper rdf:type rdfs:Class ;
+       rdfs:subClassOf :WasteMaterial, :Recyclable ;
+       rdfs:label "Paper" .
+
+:Battery rdf:type rdfs:Class ;
+         rdfs:subClassOf :WasteMaterial, :Hazardous ;
+         rdfs:label "Battery" .
+
+:Trash rdf:type rdfs:Class ;
+       rdfs:subClassOf :WasteMaterial ;
+       rdfs:label "Trash" .
+
+:Cardboard rdf:type rdfs:Class ;
+           rdfs:subClassOf :WasteMaterial ;
+           rdfs:label "Cardboard" .
+
+:Shoes rdf:type rdfs:Class ;
+       rdfs:subClassOf :WasteMaterial ;
+       rdfs:label "Shoes" .
+
+:Clothes rdf:type rdfs:Class ;
+         rdfs:subClassOf :WasteMaterial ;
+         rdfs:label "Clothes" .
+
+:Plastic rdf:type rdfs:Class ;
+         rdfs:subClassOf :WasteMaterial ;
+         rdfs:label "Plastic" .
+
+# ========================
+# Properties
+# ========================
+
+:appliesTo rdf:type rdf:Property ;
+           rdfs:label "applies to material" .
+
+:condition rdf:type rdf:Property ;
+           rdfs:label "condition" .
+
+:redirectTo rdf:type rdf:Property ;
+            rdfs:label "redirect to path" .
+
+:hasRecyclingCode rdf:type rdf:Property ;
+                  rdfs:label "has recycling code" .
+
+:hasMinWeight rdf:type rdf:Property ;
+              rdfs:label "Minimum Weight" .
+
+:hasMaxWeight rdf:type rdf:Property ;
+              rdfs:label "Maximum Weight" .
+
+:hasVoltage rdf:type rdf:Property ;
+            rdfs:label "Voltage in Volts" .
+
+:hasMoisture rdf:type rdf:Property ;
+             rdfs:label "Moisture in %" .
+
+:causes rdf:type rdf:Property ;
+        rdfs:label "causes event" .
+
+# ========================
+# Conveyors
+# ========================
+
+:ConveyorGlass rdf:type :Conveyor ;
+               rdfs:label "Glass Conveyor" .
+
+:ConveyorPlastic rdf:type :Conveyor ;
+                 rdfs:label "Plastic Conveyor" .
+
+:ConveyorPaper rdf:type :Conveyor ;
+               rdfs:label "Paper Conveyor" .
+
+:ConveyorOrganic rdf:type :Conveyor ;
+                 rdfs:label "Compost / Organic Line" .
+
+:ConveyorBatteries rdf:type :Conveyor ;
+                   rdfs:label "Hazardous Waste Bin" .
+
+:ConveyorTrash rdf:type :Conveyor ;
+               rdfs:label "General Trash Bin" .
+
+:ConveyorCardboard rdf:type :Conveyor ;
+                   rdfs:label "Cardboard Conveyor" .
+
+:ConveyorShoes rdf:type :Conveyor ;
+               rdfs:label "Re-use or Textile Bin" .
+
+:ConveyorClothes rdf:type :Conveyor ;
+                 rdfs:label "Clothing Recycling Bin" .
+
+:ConveyorMetal rdf:type :Conveyor ;
+               rdfs:label "Metal Conveyor" .
+
+# ========================
+# Sorting Rules
+# ========================
+
+:RuleGlass rdf:type :SortingRule ;
+           :appliesTo :Glass ;
+           :condition "if intact or broken container glass" ;
+           :redirectTo :ConveyorGlass ;
+           rdfs:label "Send glass to glass conveyor" .
+
+:RulePlastic rdf:type :SortingRule ;
+             :appliesTo :Plastic ;
+             :condition "if plastic item identified and not contaminated" ;
+             :redirectTo :ConveyorPlastic ;
+             rdfs:label "Send plastic to plastic conveyor" .
+
+:RulePaper rdf:type :SortingRule ;
+           :appliesTo :Paper ;
+           :condition "if dry and clean paper" ;
+           :redirectTo :ConveyorPaper ;
+           :hasRecyclingCode "P01" ;
+           rdfs:label "Send paper to paper conveyor" .
+
+:RuleBiological rdf:type :SortingRule ;
+                :appliesTo :Biological ;
+                :condition "if food waste or garden waste" ;
+                :redirectTo :ConveyorOrganic ;
+                rdfs:label "Send bio-waste to compost line" .
+
+:RuleBattery rdf:type :SortingRule ;
+             :appliesTo :Battery ;
+             :condition "if battery or accumulator detected" ;
+             :redirectTo :ConveyorBatteries ;
+             rdfs:label "Send batteries to hazardous waste bin" .
+
+:RuleTrash rdf:type :SortingRule ;
+           :appliesTo :Trash ;
+           :condition "if non-recyclable or mixed waste" ;
+           :redirectTo :ConveyorTrash ;
+           rdfs:label "Send trash to general waste" .
+
+:RuleCardboard rdf:type :SortingRule ;
+               :appliesTo :Cardboard ;
+               :condition "if thick paper-based item or box" ;
+               :redirectTo :ConveyorCardboard ;
+               rdfs:label "Send cardboard to cardboard conveyor" .
+
+:RuleShoes rdf:type :SortingRule ;
+           :appliesTo :Shoes ;
+           :condition "if item is a shoe or boot" ;
+           :redirectTo :ConveyorShoes ;
+           rdfs:label "Send shoes to reuse container" .
+
+:RuleClothes rdf:type :SortingRule ;
+             :appliesTo :Clothes ;
+             :condition "if textile or garment detected" ;
+             :redirectTo :ConveyorClothes ;
+             rdfs:label "Send clothes to textile recycling bin" .
+
+:RuleMetal rdf:type :SortingRule ;
+           :appliesTo :Metal ;
+           :condition "if metallic surface detected" ;
+           :redirectTo :ConveyorMetal ;
+           rdfs:label "Send metal to metal conveyor" .
+
+# ========================
+# Inference Example Rules
+# ========================
+
+:ExamplePaperItem rdf:type :WasteItem ;
+                  :hasRecyclingCode "P01" ;
+                  rdf:type :Recyclable .
+
+:GlassBottle rdf:type :Glass ;
+             :hasMinWeight 0.1 ;
+             :hasMaxWeight 0.5 ;
+             rdfs:label "Glass Bottle" .
+
+:HighVoltageBattery rdf:type :Battery ;
+                    :hasVoltage 9 ;
+                    :causes :VoltageAlarm .
+
+:VoltageAlarm rdf:type :SystemAlarm ;
+              rdfs:label "Battery Overvoltage Alarm" .
+
+:ClothesItem1 rdf:type :Clothes ;
+              :hasMoisture 70 ;
+              :causes :WetClothesWarning .
+
+:WetClothesWarning rdf:type :SystemWarning ;
+                   rdfs:label "Wet Clothes Detected" .
