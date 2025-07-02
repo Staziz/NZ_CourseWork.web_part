@@ -16,13 +16,15 @@ namespace backend.Controllers
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IWebHostEnvironment _env;
         private readonly IConfiguration _config;
+        private readonly backend.Services.IInferenceService _inferenceService;
 
-        public WasteController(WasteDbContext db, IHttpClientFactory httpClientFactory, IWebHostEnvironment env, IConfiguration config)
+        public WasteController(WasteDbContext db, IHttpClientFactory httpClientFactory, IWebHostEnvironment env, IConfiguration config, backend.Services.IInferenceService inferenceService)
         {
             _db = db;
             _httpClientFactory = httpClientFactory;
             _env = env;
             _config = config;
+            _inferenceService = inferenceService;
         }
 
         [HttpPost("upload")]
@@ -90,13 +92,41 @@ namespace backend.Controllers
             _db.WasteItems.Add(waste);
             await _db.SaveChangesAsync();
 
+            // Perform inference if classification was successful
+            backend.Models.WasteInferenceResult? inference = null;
+            if (wasteClass != null)
+            {
+                inference = _inferenceService.InferWasteProperties(wasteClass);
+                
+                // Generate contamination alerts if hazardous
+                if (inference.IsHazardous)
+                {
+                    var alert = new Alert
+                    {
+                        Type = "contamination",
+                        Description = $"Hazardous material detected: {wasteClass}",
+                        DetectedAt = DateTime.UtcNow,
+                        Closed = false
+                    };
+                    _db.Alerts.Add(alert);
+                    await _db.SaveChangesAsync();
+                }
+            }
+
             if (error != null)
             {
                 return Ok(new { error, max_prob = maxProb, waste.Id, waste.ImagePath, waste.Status });
             }
             else if (wasteClass != null)
             {
-                return Ok(new { @class = wasteClass, confidence, waste.Id, waste.ImagePath, waste.Status });
+                return Ok(new { 
+                    @class = wasteClass, 
+                    confidence, 
+                    waste.Id, 
+                    waste.ImagePath, 
+                    waste.Status,
+                    inference = inference
+                });
             }
             else
             {

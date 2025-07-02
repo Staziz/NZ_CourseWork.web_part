@@ -32,6 +32,16 @@ namespace backend.Services
                 }
             }
 
+            // Seed demo alerts
+            if (!db.Alerts.Any())
+            {
+                db.Alerts.AddRange(
+                    new Alert { Type = "contamination", Description = "Battery contamination detected in organic waste bin", DetectedAt = DateTime.UtcNow.AddHours(-2), Closed = false },
+                    new Alert { Type = "contamination", Description = "Glass fragments found in plastic conveyor", DetectedAt = DateTime.UtcNow.AddHours(-1), Closed = true, AssignedTo = "service1" },
+                    new Alert { Type = "system", Description = "High moisture level detected in clothes sorting area", DetectedAt = DateTime.UtcNow.AddMinutes(-30), Closed = false }
+                );
+            }
+
             db.SaveChanges();
         }
     }

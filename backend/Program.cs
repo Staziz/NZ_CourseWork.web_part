@@ -28,6 +28,9 @@ builder.Services.AddCors(options =>
 // Add HttpClient for Python API forwarding
 builder.Services.AddHttpClient();
 
+// Add Inference Service
+builder.Services.AddScoped<backend.Services.IInferenceService, backend.Services.InferenceService>();
+
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 builder.Services.AddAuthentication(options =>
