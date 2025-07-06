@@ -92,12 +92,22 @@ namespace backend.Migrations
                     b.Property<string>("Category")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ClassifiedBy")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ImagePath")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<bool?>("IsCorrect")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsManual")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Result")
                         .HasColumnType("TEXT");
